@@ -145,6 +145,10 @@
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
 
+            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
+                endGame();
+            }
+
             if (direction === "LEFT") snakeX -= box;
             if (direction === "UP") snakeY -= box;
             if (direction === "RIGHT") snakeX += box;
@@ -166,10 +170,6 @@
             }
 
             let newHead = { x: snakeX, y: snakeY };
-
-            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
-                endGame();
-            }
 
             snake.unshift(newHead);
         }
