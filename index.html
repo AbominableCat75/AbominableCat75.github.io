@@ -51,6 +51,7 @@
         let speed = 200;  // Start slow
         const minSpeed = 50;  // Fastest speed
         let gameInterval;
+        let isGracePeriod = false;
 
         document.addEventListener("keydown", startGame);
         canvas.addEventListener("click", startGame);
@@ -128,7 +129,16 @@
 
             let newHead = { x: snakeX, y: snakeY };
 
-            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
+            if (!isGracePeriod && (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height)) {
+                isGracePeriod = true;
+                setTimeout(() => {
+                    // Check again after grace period
+                    if (snake[0].x < 0 || snake[0].x >= canvas.width || snake[0].y < 0 || snake[0].y >= canvas.height) {
+                        clearInterval(gameInterval);
+                    }
+                    isGracePeriod = false;
+                }, 500); // 0.5-second grace period
+            } else if (!isGracePeriod && collision(newHead, snake)) {
                 clearInterval(gameInterval);
             }
 
