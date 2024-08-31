@@ -61,10 +61,10 @@
         const gameOverMessage = document.getElementById("gameOverMessage");
 
         function initializeGame() {
-            snake = [{ x: Math.floor(canvas.width / 2 / box) * box, y: Math.floor(canvas.height / 2 / box) * box }];
+            snake = [{ x: 9 * box, y: 10 * box }];
             food = { 
-                x: Math.floor(Math.random() * (canvas.width / box)) * box, 
-                y: Math.floor(Math.random() * (canvas.height / box)) * box 
+                x: Math.floor(Math.random() * 19 + 1) * box, 
+                y: Math.floor(Math.random() * 19 + 1) * box 
             };
             direction = "RIGHT";
             nextDirection = direction;
@@ -160,40 +160,40 @@
             if (direction === "RIGHT") snakeX += box;
             if (direction === "DOWN") snakeY += box;
 
-            // Check for collision with canvas borders
-            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height) {
-                if (!isGracePeriod) {
-                    isGracePeriod = true;
-                    clearInterval(gameInterval); // Pause the game during grace period
-                    setTimeout(() => {
-                        // Check again after grace period
-                        if (snake[0].x < 0 || snake[0].x >= canvas.width || snake[0].y < 0 || snake[0].y >= canvas.height) {
-                            endGame();
-                        } else {
-                            isGracePeriod = false;
-                            gameInterval = setInterval(draw, speed); // Resume the game
-                        }
-                    }, 500); // 0.5-second grace period
+            if (snakeX === food.x && snakeY === food.y) {
+                score++;
+                food = {
+                    x: Math.floor(Math.random() * 19 + 1) * box,
+                    y: Math.floor(Math.random() * 19 + 1) * box
+                };
+                if (speed > minSpeed) {
+                    clearInterval(gameInterval);
+                    speed -= 10;  // Increase speed
+                    gameInterval = setInterval(draw, speed);
                 }
-            } else if (!isGracePeriod && collision({ x: snakeX, y: snakeY }, snake)) {
-                endGame();
             } else {
-                snake.unshift({ x: snakeX, y: snakeY });
-                if (snakeX === food.x && snakeY === food.y) {
-                    score++;
-                    food = { 
-                        x: Math.floor(Math.random() * (canvas.width / box)) * box, 
-                        y: Math.floor(Math.random() * (canvas.height / box)) * box 
-                    };
-                    if (speed > minSpeed) {
-                        clearInterval(gameInterval);
-                        speed -= 10;  // Increase speed
-                        gameInterval = setInterval(draw, speed);
-                    }
-                } else {
-                    snake.pop();
-                }
+                snake.pop();
             }
+
+            let newHead = { x: snakeX, y: snakeY };
+
+            if (!isGracePeriod && (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height)) {
+                isGracePeriod = true;
+                clearInterval(gameInterval); // Pause the game during grace period
+                setTimeout(() => {
+                    // Check again after grace period
+                    if (snake[0].x < 0 || snake[0].x >= canvas.width || snake[0].y < 0 || snake[0].y >= canvas.height) {
+                        endGame();
+                    } else {
+                        isGracePeriod = false;
+                        gameInterval = setInterval(draw, speed); // Resume the game
+                    }
+                }, 500); // 0.5-second grace period
+            } else if (!isGracePeriod && collision(newHead, snake)) {
+                endGame();
+            }
+
+            snake.unshift(newHead);
         }
 
         function collision(head, array) {
