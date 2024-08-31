@@ -192,7 +192,7 @@
                         gameInterval = setInterval(draw, speed); // Resume the game
                     }
                 }, 500); // 0.5-second grace period
-            } else if (!isGracePeriod && I collision(newHead, snake)) {
+            } else if (!isGracePeriod && collision(newHead, snake)) {
                 endGame();
             }
 
