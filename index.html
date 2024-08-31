@@ -11,6 +11,7 @@
             margin: 0;
             padding: 0;
             background-color: #f0f0f0;
+            overflow: hidden; /* Prevents scrolling */
         }
 
         h1 {
@@ -47,7 +48,10 @@
         let direction;
         let score = 0;
 
-        document.addEventListener("keydown", changeDirection);
+        document.addEventListener("keydown", function(event) {
+            changeDirection(event);
+            event.preventDefault(); // Prevent default action for arrow keys
+        });
 
         // Handle swiping for mobile
         let touchStartX = 0;
