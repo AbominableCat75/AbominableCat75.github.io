@@ -11,7 +11,6 @@
             margin: 0;
             padding: 0;
             background-color: #f0f0f0;
-            overflow: hidden; /* Prevents scrolling */
         }
 
         h1 {
@@ -21,19 +20,20 @@
         canvas {
             border: 1px solid #000;
             background-color: #fff;
+            max-width: 90vw; /* Limit canvas to 90% of the viewport width */
+            height: auto; /* Maintain aspect ratio */
         }
 
         #snakeGame {
             display: inline-block;
             margin-top: 20px;
-            max-width: 100vw;
         }
     </style>
 </head>
 <body>
 
     <h1>Welcome to My Website</h1>
-    <p>Use arrow keys to play the game on desktop or swipe on mobile.</p>
+    <p>Tap the canvas or use arrow keys to move the snake.</p>
 
     <canvas id="snakeGame" width="400" height="400"></canvas>
 
@@ -46,48 +46,42 @@
             x: Math.floor(Math.random() * 19 + 1) * box, 
             y: Math.floor(Math.random() * 19 + 1) * box 
         };
-        let direction;
+        let direction = "RIGHT";
         let score = 0;
 
-        document.addEventListener("keydown", function(event) {
-            changeDirection(event);
-            event.preventDefault(); // Prevent default action for arrow keys
-        });
-
-        // Handle swiping for mobile
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchEndX = 0;
-        let touchEndY = 0;
-
-        document.addEventListener('touchstart', function(event) {
-            touchStartX = event.changedTouches[0].screenX;
-            touchStartY = event.changedTouches[0].screenY;
-        }, false);
-
-        document.addEventListener('touchend', function(event) {
-            touchEndX = event.changedTouches[0].screenX;
-            touchEndY = event.changedTouches[0].screenY;
-            handleGesture();
-        }, false);
-
-        function handleGesture() {
-            let xDiff = touchEndX - touchStartX;
-            let yDiff = touchEndY - touchStartY;
-            if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (xDiff > 0 && direction !== "LEFT") direction = "RIGHT";
-                else if (xDiff < 0 && direction !== "RIGHT") direction = "LEFT";
-            } else {
-                if (yDiff > 0 && direction !== "UP") direction = "DOWN";
-                else if (yDiff < 0 && direction !== "DOWN") direction = "UP";
-            }
-        }
+        document.addEventListener("keydown", changeDirection);
+        canvas.addEventListener("click", changeDirectionOnTap);
 
         function changeDirection(event) {
             if (event.keyCode === 37 && direction !== "RIGHT") direction = "LEFT";
             else if (event.keyCode === 38 && direction !== "DOWN") direction = "UP";
             else if (event.keyCode === 39 && direction !== "LEFT") direction = "RIGHT";
             else if (event.keyCode === 40 && direction !== "UP") direction = "DOWN";
+        }
+
+        function changeDirectionOnTap(event) {
+            // Get the position of the tap relative to the canvas
+            const rect = canvas.getBoundingClientRect();
+            const tapX = event.clientX - rect.left;
+            const tapY = event.clientY - rect.top;
+
+            const headX = snake[0].x;
+            const headY = snake[0].y;
+
+            // Determine direction based on where the tap occurred
+            if (Math.abs(tapX - headX) > Math.abs(tapY - headY)) {
+                if (tapX > headX && direction !== "LEFT") {
+                    direction = "RIGHT";
+                } else if (tapX < headX && direction !== "RIGHT") {
+                    direction = "LEFT";
+                }
+            } else {
+                if (tapY > headY && direction !== "UP") {
+                    direction = "DOWN";
+                } else if (tapY < headY && direction !== "DOWN") {
+                    direction = "UP";
+                }
+            }
         }
 
         function draw() {
