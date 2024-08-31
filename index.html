@@ -87,6 +87,7 @@
         }
 
         function changeDirection(event) {
+            if (isGracePeriod) return; // Prevent direction change during grace period
             if (event.keyCode === 37 && direction !== "RIGHT") direction = "LEFT";
             else if (event.keyCode === 38 && direction !== "DOWN") direction = "UP";
             else if (event.keyCode === 39 && direction !== "LEFT") direction = "RIGHT";
@@ -94,6 +95,7 @@
         }
 
         function changeDirectionOnTap(event) {
+            if (isGracePeriod) return; // Prevent direction change during grace period
             const rect = canvas.getBoundingClientRect();
             const tapX = event.clientX - rect.left;
 
@@ -127,10 +129,12 @@
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
 
-            if (direction === "LEFT") snakeX -= box;
-            if (direction === "UP") snakeY -= box;
-            if (direction === "RIGHT") snakeX += box;
-            if (direction === "DOWN") snakeY += box;
+            if (!isGracePeriod) {
+                if (direction === "LEFT") snakeX -= box;
+                if (direction === "UP") snakeY -= box;
+                if (direction === "RIGHT") snakeX += box;
+                if (direction === "DOWN") snakeY += box;
+            }
 
             if (snakeX === food.x && snakeY === food.y) {
                 score++;
@@ -151,12 +155,15 @@
 
             if (!isGracePeriod && (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height)) {
                 isGracePeriod = true;
+                clearInterval(gameInterval); // Pause the game during grace period
                 setTimeout(() => {
                     // Check again after grace period
                     if (snake[0].x < 0 || snake[0].x >= canvas.width || snake[0].y < 0 || snake[0].y >= canvas.height) {
                         endGame();
+                    } else {
+                        isGracePeriod = false;
+                        gameInterval = setInterval(draw, speed); // Resume the game
                     }
-                    isGracePeriod = false;
                 }, 500); // 0.5-second grace period
             } else if (!isGracePeriod && collision(newHead, snake)) {
                 endGame();
