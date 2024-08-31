@@ -137,6 +137,8 @@
         }
 
         function draw() {
+            snake[0].x = Math.max(0, Math.min(snake[0].x, canvas.width - 1))
+            snake[0].y = Math.max(0, Math.min(snake[0].y, canvas.height - 1))
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = (i === 0) ? "green" : "lime";
@@ -180,16 +182,17 @@
             if (!isGracePeriod && (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height)) {
                 isGracePeriod = true;
                 clearInterval(gameInterval); // Pause the game during grace period
+                let d=direction;
                 setTimeout(() => {
                     // Check again after grace period
-                    if (snake[0].x < 0 || snake[0].x >= canvas.width || snake[0].y < 0 || snake[0].y >= canvas.height) {
+                    if (d === direction) {
                         endGame();
                     } else {
                         isGracePeriod = false;
                         gameInterval = setInterval(draw, speed); // Resume the game
                     }
                 }, 500); // 0.5-second grace period
-            } else if (!isGracePeriod && collision(newHead, snake)) {
+            } else if (!isGracePeriod && I collision(newHead, snake)) {
                 endGame();
             }
 
