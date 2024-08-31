@@ -145,7 +145,7 @@
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
 
-            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
+            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision({x:snakeX,y:snakeY}, snake)) {
                 endGame();
             }
 
