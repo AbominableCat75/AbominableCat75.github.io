@@ -33,7 +33,7 @@
 <body>
 
     <h1>Welcome to My Website</h1>
-    <p>Tap the canvas or use arrow keys to move the snake.</p>
+    <p>Tap the right half of the canvas to turn clockwise, tap the left half to turn anticlockwise. Press any key or tap to start the game.</p>
 
     <canvas id="snakeGame" width="400" height="400"></canvas>
 
@@ -48,9 +48,22 @@
         };
         let direction = "RIGHT";
         let score = 0;
+        let speed = 200;  // Start slow
+        const minSpeed = 50;  // Fastest speed
+        let gameInterval;
 
-        document.addEventListener("keydown", changeDirection);
-        canvas.addEventListener("click", changeDirectionOnTap);
+        document.addEventListener("keydown", startGame);
+        canvas.addEventListener("click", startGame);
+
+        function startGame(event) {
+            if (!gameInterval) {
+                document.removeEventListener("keydown", startGame);
+                canvas.removeEventListener("click", startGame);
+                document.addEventListener("keydown", changeDirection);
+                canvas.addEventListener("click", changeDirectionOnTap);
+                gameInterval = setInterval(draw, speed);
+            }
+        }
 
         function changeDirection(event) {
             if (event.keyCode === 37 && direction !== "RIGHT") direction = "LEFT";
@@ -60,27 +73,21 @@
         }
 
         function changeDirectionOnTap(event) {
-            // Get the position of the tap relative to the canvas
             const rect = canvas.getBoundingClientRect();
             const tapX = event.clientX - rect.left;
-            const tapY = event.clientY - rect.top;
 
-            const headX = snake[0].x;
-            const headY = snake[0].y;
-
-            // Determine direction based on where the tap occurred
-            if (Math.abs(tapX - headX) > Math.abs(tapY - headY)) {
-                if (tapX > headX && direction !== "LEFT") {
-                    direction = "RIGHT";
-                } else if (tapX < headX && direction !== "RIGHT") {
-                    direction = "LEFT";
-                }
+            if (tapX > canvas.width / 2) {
+                // Tap on the right half, turn clockwise
+                if (direction === "RIGHT") direction = "DOWN";
+                else if (direction === "DOWN") direction = "LEFT";
+                else if (direction === "LEFT") direction = "UP";
+                else if (direction === "UP") direction = "RIGHT";
             } else {
-                if (tapY > headY && direction !== "UP") {
-                    direction = "DOWN";
-                } else if (tapY < headY && direction !== "DOWN") {
-                    direction = "UP";
-                }
+                // Tap on the left half, turn anticlockwise
+                if (direction === "RIGHT") direction = "UP";
+                else if (direction === "UP") direction = "LEFT";
+                else if (direction === "LEFT") direction = "DOWN";
+                else if (direction === "DOWN") direction = "RIGHT";
             }
         }
 
@@ -110,6 +117,11 @@
                     x: Math.floor(Math.random() * 19 + 1) * box,
                     y: Math.floor(Math.random() * 19 + 1) * box
                 };
+                if (speed > minSpeed) {
+                    clearInterval(gameInterval);
+                    speed -= 10;  // Increase speed
+                    gameInterval = setInterval(draw, speed);
+                }
             } else {
                 snake.pop();
             }
@@ -117,7 +129,7 @@
             let newHead = { x: snakeX, y: snakeY };
 
             if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
-                clearInterval(game);
+                clearInterval(gameInterval);
             }
 
             snake.unshift(newHead);
@@ -131,8 +143,6 @@
             }
             return false;
         }
-
-        let game = setInterval(draw, 100);
     </script>
 
 </body>
