@@ -145,6 +145,7 @@
             if (direction === "UP") snakeY -= box;
             if (direction === "RIGHT") snakeX += box;
             if (direction === "DOWN") snakeY += box;
+            lastDirection = direction;
 
             if (snakeX === food.x && snakeY === food.y) {
                 score++;
