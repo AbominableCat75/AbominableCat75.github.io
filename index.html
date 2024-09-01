@@ -161,6 +161,11 @@
 
             let newHead = { x: snakeX, y: snakeY };
             
+            if (collision(newHead, snake)) {
+                endGame();
+            }
+            snake.unshift(newHead);
+            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = (i === 0) ? "green" : "lime";
@@ -171,11 +176,6 @@
 
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, box, box);
-            
-            if (collision(newHead, snake)) {
-                endGame();
-            }
-            snake.unshift(newHead);
         }
 
         function collision(head, array) {
